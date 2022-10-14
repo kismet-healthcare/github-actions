@@ -44,12 +44,12 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
-          docker build --build-arg REVISION=${{ inputs.image-tag }} -t $ECR_REGISTRY/${{ inputs.ecr-repo-name }}:${{ inputs.image-tag }} .
+          docker build --build-arg REVISION=${{ inputs.image-tag }} -t $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }} .
 
       - name: Push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
-          docker push $ECR_REGISTRY/${{ inputs.ecr-repo-name }}:${{ inputs.image-tag }}
+          docker push $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
 
           echo "image-url=$ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
