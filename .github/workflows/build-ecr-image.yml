@@ -1,4 +1,4 @@
-name: Build ECR Image
+name: Build and Push ECR Image
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
       aws-region:
         required: true
         type: string
-      ecr-repo-name:
+      ecr-repo:
         required: true
         type: string
       github-role-arn:

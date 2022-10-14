@@ -1,0 +1,66 @@
+name: Deploy Task Definition to ECS
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      ecs-cluster:
+        required: true
+        type: string
+      ecs-service:
+        required: true
+        type: string
+      ecs-container:
+        required: true
+        type: string
+      github-role-arn:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      task-definition-s3-uri:
+        required: true
+        type: string   
+
+permissions:
+  actions: write
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ inputs.github-role-arn }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Download task definition template
+        run: aws s3 cp ${{ inputs.task-definition-s3-uri }} ./task-definition.json
+
+      - name: Render Amazon ECS task definition
+        id: render-task
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ./task-definition.json
+          container-name: ${{ inputs.ecs-container-name }}
+          image: ${{ steps.ecr-login.outputs.registry }}/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          cluster: ${{ inputs.ecs-cluster }}
+          service: ${{ inputs.ecs-service }}
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
+          wait-for-service-stability: true
