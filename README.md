@@ -11,8 +11,9 @@ jobs:
     uses: kismet-healthcare/github-actions/.github/workflows/build-ecr-image.yml@main
     with:
       aws-region: ap-southeast-2
-      ecr-repo-name:
+      ecr-repo:
       github-role-arn:
+      image-tag: 
 ```
 
 # Deploy task definition to ECS
