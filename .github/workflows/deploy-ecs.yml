@@ -4,6 +4,9 @@ on:
       aws-region:
         required: true
         type: string
+      ecr-repo:
+        required: true
+        type: string
       ecs-cluster:
         required: true
         type: string
@@ -16,7 +19,7 @@ on:
       github-role-arn:
         required: true
         type: string
-      image-url:
+      image-tag:
         required: true
         type: string
       task-definition-s3-uri:
@@ -38,16 +41,22 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ inputs.github-role-arn }}
 
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+
       - name: Download task definition template
         run: aws s3 cp ${{ inputs.task-definition-s3-uri }} ./task-definition.json
 
       - name: Render Amazon ECS task definition
         id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         with:
           task-definition: ./task-definition.json
           container-name: ${{ inputs.ecs-container }}
-          image: ${{ inputs.image-url }}
+          image: $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
