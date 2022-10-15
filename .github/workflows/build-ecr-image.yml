@@ -13,6 +13,10 @@ on:
       image-tag:
         required: true
         type: string
+    outputs:
+      image-url:
+        description: "URL of the published image"
+        value: ${{ jobs.copy-image.outputs.image-url }}
 
 permissions:
   actions: write
@@ -50,4 +54,4 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
           docker push $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
-          echo "::set-output name=image-url::$ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}"
+          echo "image-url=$ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
