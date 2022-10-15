@@ -66,6 +66,4 @@ jobs:
         run: |
           docker tag target $ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}
           docker push $ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}
-
           echo "::set-output name=image-url::$ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}"
-          echo "image-url=$ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT

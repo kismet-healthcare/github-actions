@@ -50,4 +50,4 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
           docker push $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
-          echo "image-url=$ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
+          echo "::set-output name=image-url::$ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}"
