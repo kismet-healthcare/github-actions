@@ -16,7 +16,7 @@ on:
     outputs:
       image-url:
         description: "URL of the published image"
-        value: ${{ jobs.copy-image.outputs.image-url }}
+        value: ${{ jobs.build-image.outputs.image-url }}
 
 permissions:
   actions: write
