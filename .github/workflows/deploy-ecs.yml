@@ -51,12 +51,10 @@ jobs:
       - name: Render Amazon ECS task definition
         id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         with:
           task-definition: ./task-definition.json
           container-name: ${{ inputs.ecs-container }}
-          image: $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
+          image: ${{ steps.ecr-login.outputs.registry }}/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
