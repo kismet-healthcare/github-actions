@@ -38,10 +38,6 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ inputs.github-role-arn }}
 
-      - name: Login to ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v1
-
       - name: Download task definition template
         run: aws s3 cp ${{ inputs.task-definition-s3-uri }} ./task-definition.json
 
@@ -51,7 +47,7 @@ jobs:
         with:
           task-definition: ./task-definition.json
           container-name: ${{ inputs.ecs-container }}
-          image: ${{ steps.ecr-login.outputs.registry }}/${{ inputs.image }}
+          image: ${{ inputs.image-url }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
