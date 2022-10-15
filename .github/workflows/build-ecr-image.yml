@@ -22,7 +22,8 @@ permissions:
 jobs:
   build-image:
     runs-on: ubuntu-latest
-
+    outputs:
+      image-url: ${{ steps.push-image.outputs.image-url }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -44,9 +45,9 @@ jobs:
           docker build --build-arg REVISION=${{ inputs.image-tag }} -t $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }} .
 
       - name: Push image to ECR
+        id: push-image
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
           docker push $ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}
-
           echo "image-url=$ECR_REGISTRY/${{ inputs.ecr-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT

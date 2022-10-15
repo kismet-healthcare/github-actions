@@ -16,7 +16,7 @@ on:
       github-role-arn:
         required: true
         type: string
-      image:
+      image-url:
         required: true
         type: string
       task-definition-s3-uri:
@@ -29,9 +29,8 @@ permissions:
   id-token: write
 
 jobs:
-  deploy-staging:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
