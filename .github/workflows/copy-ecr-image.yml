@@ -1,0 +1,71 @@
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      from-repo:
+        required: true
+        type: string
+      from-role-arn:
+        required: true
+        type: string
+      to-repo:
+        required: true
+        type: string
+      to-role-arn:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+  id-token: write
+
+jobs:
+  copy-image:
+    runs-on: ubuntu-latest
+    outputs:
+      image-url: ${{ steps.push-image.outputs.image-url }}
+    steps:
+      - name: Configure staging AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ inputs.from-role-arn }}
+
+      - name: Login to staging ECR
+        id: staging-ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull image from staging
+        env:
+          ECR_REGISTRY: ${{ steps.staging-ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.event.inputs.version }}
+        run: |
+          docker pull $ECR_REGISTRY/${{ inputs.from-repo }}:${{ inputs.image-tag }}
+          docker tag $ECR_REGISTRY/${{ inputs.from-repo }}:${{ inputs.image-tag }} target
+
+      - name: Configure prod AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ inputs.to-role-arn }}
+
+      - name: Login to prod ECR
+        id: prod-ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Push image to prod ECR
+        env:
+          ECR_REGISTRY: ${{ steps.prod-ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.event.inputs.version }}
+        run: |
+          docker tag target $ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}
+          docker push $ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}
+
+          echo "::set-output name=image-url::$ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}"
+          echo "image-url=$ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
