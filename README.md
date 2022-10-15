@@ -1,6 +1,8 @@
 This repo contains reusable GitHub Action workflows.
 
-# Build and push ECR repo:
+# Workflows
+
+## Build and push ECR repo:
 
 - `ecr-repo` is the name of the repo in ECR (not the full URL)
 - `github-role-arn` is a GitHub role with permission to push the repo to ECR
@@ -16,7 +18,7 @@ jobs:
       image-tag: 
 ```
 
-# Deploy task definition to ECS
+## Deploy task definition to ECS
 
 Assumes image is hosted in ECR.
 
@@ -36,3 +38,8 @@ jobs:
       github-role-arn:
       task-definition-s3-uri:
 ```
+
+# Gotchas
+
+- Sensitive data can't be expored, such as AWS accounts and ECR URLs
+- GitHub is fussy about what data is available when. See this: https://docs.github.com/en/actions/learn-github-actions/contexts
