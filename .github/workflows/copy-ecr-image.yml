@@ -19,10 +19,6 @@ on:
       image-tag:
         required: true
         type: string
-    outputs:
-      image-url:
-        description: "URL of the published image"
-        value: ${{ jobs.copy-image.outputs.image-url }}
 
 permissions:
   actions: write
@@ -32,8 +28,6 @@ permissions:
 jobs:
   copy-image:
     runs-on: ubuntu-latest
-    outputs:
-      image-url: ${{ steps.push-image.outputs.image-url }}
     steps:
       - name: Configure staging AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -64,11 +58,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Push image to prod ECR
-        id: push-image
         env:
           ECR_REGISTRY: ${{ steps.prod-ecr-login.outputs.registry }}
           IMAGE_TAG: ${{ github.event.inputs.version }}
         run: |
           docker tag target $ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}
           docker push $ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}
-          echo "image-url=$ECR_REGISTRY/${{ inputs.to-repo }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
