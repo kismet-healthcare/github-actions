@@ -1,3 +1,5 @@
+name: Copy Image
+
 on:
   workflow_call:
     inputs:
